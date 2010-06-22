@@ -25,3 +25,8 @@ Testing
 -------
 
 To run the test suite, simply open test/test.html in your browser.
+
+To run the test suite in a server-side CommonJS environment, simply run the
+'test/test.js' JavaScript file. Currently only available in NodeJS:
+
+    $ node test/test.js

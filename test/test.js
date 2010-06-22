@@ -1,3 +1,9 @@
+if (typeof require == 'function' && typeof exports == 'object') {
+  var JSONQuery = require('../JSONQuery').JSONQuery,
+      jqUnit = require('./runner'),
+      jQuery = function(){}; // note: jQuery isn't even used here
+}
+
 var tests = function($) {
 
   var collection = [

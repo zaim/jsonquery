@@ -176,6 +176,27 @@ You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2
     }
     return outArr;
   }
+  
+  function single(array, callback){
+    // does the filter with removal of duplicates in O(n)
+    var outArr = [];
+	var primitives = {};
+    for(var i=0,l=array.length; i<l; ++i){
+      var value = array[i];
+	  var selector = callback(value, i, array);
+      if(selector){
+        if((typeof value == 'object') && value){
+			if(!primitives[selector]){
+			// with primitives we prevent duplicates by putting it in a map
+			primitives[selector] = true;
+			outArr.push(value);
+			}
+        }
+      }
+    }
+
+    return outArr.length > 0 ? outArr : array;
+  }
   var JSONQuery = function(/*String*/query,/*Object?*/obj){
     // summary:
     //     Performs a JSONQuery on the provided object and returns the results.
@@ -299,7 +320,8 @@ You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2
           (t.match(/:|^(\$|Math|true|false|null)$/) ? "" : "$obj.") + t; // plain names should be properties of root... unless they are a label in object initializer
       }).
       replace(/\.?\.?\[(`\]|[^\]])*\]|\?.*|\.\.([\w\$_]+)|\.\*/g,function(t,a,b){
-        var oper = t.match(/^\.?\.?(\[\s*\^?\?|\^?\?|\[\s*==)(.*?)\]?$/); // [?expr] and ?expr and [=expr and =expr
+
+        var oper = t.match(/^\.?\.?(\[\s*\^?\?|\^?\?|\^?\||\[\s*==|\[\s*\|)(.*?)\]?$/); // [?expr] and ?expr and [=expr and =expr
         if(oper){
           var prefix = '';
           if(t.match(/^\./)){
@@ -307,7 +329,7 @@ You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2
             call("expand");
             prefix = ",true)";
           }
-          call(oper[1].match(/\=/) ? "map" : oper[1].match(/\^/) ? "distinctFilter" : "filter");
+          call(oper[1].match(/\=/) ? "map" : oper[1].match(/\|/) ? "single" : oper[1].match(/\^/) ? "distinctFilter" : "filter");
           return prefix + ",function($obj){return " + oper[2] + "})";
         }
         oper = t.match(/^\[\s*([\/\\].*)\]/); // [/sortexpr,\sortexpr]
@@ -332,6 +354,7 @@ You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2
                   "," + t : // [prop1,prop2]
                   "") + ")"; // [*]
         }
+
         return t;
       }).
       replace(/(\$obj\s*(\.\s*[\w_$]+\s*)*)(==|~)\s*`([0-9]+)/g,makeRegex). // create regex matching

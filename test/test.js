@@ -343,5 +343,27 @@ var tests = function($) {
     jqUnit.ok(result[1].last == 'doe' && result[1].first == 'alice', "should return a correctly ordered result");
     jqUnit.ok(result[2].last == 'pass' && result[2].first == 'joe', "should return a correctly ordered result");
   });
+  
+  var collection2 = [
+    {id:1, foo:'bar', rating:4},
+    {id:2, foo:'bar', rating:2}
+  ];
+  
+  jqUnit.test('single [|expr]', function() {
+    var result = JSONQuery('[|foo]', collection2);
+    jqUnit.equals(result.length, 1, "should return the correct number of results");
+    jqUnit.equals(result[0].id, 1, "should return the correct result");
+	jqUnit.equals(result[0].foo, 'bar', "should return the correct result");
+	jqUnit.equals(result[0].rating, 4, "should return the correct result");
+
+    result = JSONQuery('[|doesnotexist]', collection2);
+    jqUnit.equals(collection2.length, result.length, "should ignore the expression when does not exist");
+	
+	// result = JSONQuery('|foo', collection2);
+    // jqUnit.equals(result.length, 1, "should return the correct number of results");
+    // jqUnit.equals(result[0].id, 1, "should return the correct result");
+	// jqUnit.equals(result[0].foo, 'bar', "should return the correct result");
+	// jqUnit.equals(result[0].rating, 4, "should return the correct result");
+  });
 
 }(jQuery);
